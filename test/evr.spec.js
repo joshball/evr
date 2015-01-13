@@ -26,5 +26,16 @@ lab.experiment('evr', function () {
         done();
     });
 
+
+    lab.test('reads the array parameter environment variables, but does not parse numbers', function (done) {
+        EVR.parseNumbers = false;
+        var e = EVR.load(['one','word','oneString','floatString']);
+        expect(e.word).to.equal('word');
+        expect(e.one).to.equal('1');
+        expect(e.oneString).to.equal('1');
+        expect(e.floatString).to.equal('1.1');
+        done();
+    });
+
 });
 
