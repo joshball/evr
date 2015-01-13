@@ -18,6 +18,8 @@
   "homepage": "https://github.com/joshball/evr",
   "devDependencies": {
     "chai": "^1.10.0",
-    "lab": "^5.2.0"
+    "lab": "^5.2.0",
+    "sinon": "^1.12.2",
+    "sinon-chai": "^2.6.0"
   }
 }
