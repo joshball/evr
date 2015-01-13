@@ -46,12 +46,59 @@ lab.experiment('evr', function () {
         //EVR.consoleError = console.error;
         EVR.shouldThrow = true;
         EVR.parseNumbers = true;
+        EVR.envVars = undefined
         done();
     });
 
     lab.afterEach(function(done){
         sandbox.restore();
         done();
+    });
+
+    lab.experiment('load parameters', function(){
+
+        lab.test('Should throw if missing parameter', function (done) {
+            expect(EVR.shouldThrow).to.be.true;
+            expect(EVR.parseNumbers).to.be.true;
+
+            expect(function(){
+                EVR.load();
+            }).to.throw(Error, 'Invalid parameter: envVarNames is required to be either an object or array');
+            done();
+        });
+
+        lab.test('should handle an array parameter', function (done) {
+
+            expect(EVR.shouldThrow).to.be.true;
+            expect(EVR.parseNumbers).to.be.true;
+
+            var e = EVR.load(['one','word','oneString','floatString']);
+            expectParsedEnvVars(e);
+            done();
+        });
+
+        lab.test('should handle an object parameter', function (done) {
+
+            expect(EVR.shouldThrow).to.be.true;
+            expect(EVR.parseNumbers).to.be.true;
+
+            var e = EVR.load({
+                one: 1,
+                word: 'word',
+                oneString: undefined,
+                floatString: '1.1',
+                undefinedNum: 3,
+                undefinedVariableWithDefault: 'stringValue'
+            });
+
+            expectParsedEnvVars(e);
+
+            expect(e.undefinedVariableWithDefault).to.be.equal('stringValue');
+            expect(e.undefinedNum).to.be.equal(3);
+
+            done();
+        });
+
     });
 
     lab.test('reads the array parameter environment variables', function (done) {
