@@ -15,18 +15,18 @@ var EVR = require('../lib/evr');
 
 lab.experiment('evr spec', function () {
 
-    lab.before(function(done){
+    lab.before(function (done) {
         done();
     });
 
-    function expectParsedEnvVars(e){
+    function expectParsedEnvVars(e) {
         expect(e.word).to.equal('word');
         expect(e.one).to.equal(1);
         expect(e.oneString).to.equal(1);
         expect(e.floatString).to.equal(1.1);
     }
 
-    function expectUnParsedEnvVars(e){
+    function expectUnParsedEnvVars(e) {
         expect(e.word).to.equal('word');
         expect(e.one).to.equal('1');
         expect(e.oneString).to.equal('1');
@@ -35,7 +35,7 @@ lab.experiment('evr spec', function () {
 
     var sandbox;
 
-    lab.beforeEach(function(done){
+    lab.beforeEach(function (done) {
         // Don't log to the console for the test
         sandbox = Sinon.sandbox.create();
         EVR.consoleError = sandbox.stub();
@@ -70,12 +70,12 @@ lab.experiment('evr spec', function () {
         done();
     });
 
-    lab.afterEach(function(done){
+    lab.afterEach(function (done) {
         sandbox.restore();
         done();
     });
 
-    lab.experiment('load parameters', function(){
+    lab.experiment('load parameters', function () {
 
         lab.test('Should throw if missing parameter', function (done) {
             expect(EVR.shouldThrow).to.be.true;
@@ -83,7 +83,7 @@ lab.experiment('evr spec', function () {
             expect(EVR.useSecretVarsFile).to.be.false;
             expect(EVR.secretVarsOverrideExisting).to.be.true;
 
-            expect(function(){
+            expect(function () {
                 EVR.load();
             }).to.throw(Error, 'Invalid parameter: envVarNames is required to be either an object or array');
             done();
@@ -96,7 +96,7 @@ lab.experiment('evr spec', function () {
             expect(EVR.useSecretVarsFile).to.be.false;
             expect(EVR.secretVarsOverrideExisting).to.be.true;
 
-            var e = EVR.load(['one','word','oneString','floatString']);
+            var e = EVR.load(['one', 'word', 'oneString', 'floatString']);
             expectParsedEnvVars(e);
             done();
         });
@@ -151,13 +151,13 @@ lab.experiment('evr spec', function () {
         expect(EVR.useSecretVarsFile).to.be.false;
         expect(EVR.secretVarsOverrideExisting).to.be.true;
 
-        expect(function(){
-            EVR.load(['one','word','oneString','floatString', 'missingEnv']);
+        expect(function () {
+            EVR.load(['one', 'word', 'oneString', 'floatString', 'missingEnv']);
         }).to.throw(Error, 'Required Environment Variable: "missingEnv" must be set');
         done();
     });
 
-    lab.experiment('configuration overrides', function(){
+    lab.experiment('configuration overrides', function () {
 
         lab.test('override parseNumbers (setting to false) reads the array parameter environment variables, but does not parse numbers', function (done) {
 
@@ -166,7 +166,7 @@ lab.experiment('evr spec', function () {
             expect(EVR.useSecretVarsFile).to.be.false;
             expect(EVR.secretVarsOverrideExisting).to.be.true;
 
-            var e = EVR.load(['one','word','oneString','floatString']);
+            var e = EVR.load(['one', 'word', 'oneString', 'floatString']);
             expectUnParsedEnvVars(e);
             done();
         });
@@ -178,7 +178,7 @@ lab.experiment('evr spec', function () {
             expect(EVR.useSecretVarsFile).to.be.false;
             expect(EVR.secretVarsOverrideExisting).to.be.true;
 
-            var e = EVR.load(['somethingsfish', 'one','word','oneString','floatString', 'missingEnv']);
+            var e = EVR.load(['somethingsfish', 'one', 'word', 'oneString', 'floatString', 'missingEnv']);
             expectParsedEnvVars(e);
 
             expect(e.missingEnv).to.be.undefined;
@@ -189,54 +189,68 @@ lab.experiment('evr spec', function () {
             done();
         });
 
-        lab.test('adding a secretVars directory should look in there before checking the environment', function(done){
-            EVR.useSecretVarsFile = true;
-            expect(EVR.shouldThrow).to.be.true;
-            expect(EVR.parseNumbers).to.be.true;
+        lab.experiment('secret_vars', function () {
 
-            var e = EVR.load(['secretVarEnvVar', 'one', 'word','oneString','floatString']);
-            expect(e.one).to.equal(1);
-            expect(e.oneString).to.equal(1);
-            expect(e.floatString).to.equal(1.1);
-            // Note the override of word:
-            expect(e.word).to.equal('secret word');
-            // and the new env:
-            expect(e.secretVarEnvVar).to.be.eql('super secret');
-            done();
-        });
+            lab.test('adding a secretVars directory should look in there before checking the environment', function (done) {
+                EVR.useSecretVarsFile = true;
+                expect(EVR.shouldThrow).to.be.true;
+                expect(EVR.parseNumbers).to.be.true;
 
-        lab.test('adding an alternative secretVars directory should look in there before checking the environment', function(done){
-            EVR.useSecretVarsFile = true;
-            EVR.secretVarsFileName = './test/alt.secret.vars/alt.env.vars.js';
-            expect(EVR.shouldThrow).to.be.true;
-            expect(EVR.parseNumbers).to.be.true;
 
-            var e = EVR.load(['secretVarEnvVar', 'one', 'word','oneString','floatString']);
-            expect(e.one).to.equal(1);
-            expect(e.oneString).to.equal(1);
-            expect(e.floatString).to.equal(1.1);
-            // Note the override of word:
-            expect(e.word).to.equal('alt secret word');
-            // and the new env:
-            expect(e.secretVarEnvVar).to.be.eql('super squirrel secret');
-            done();
-        });
+                var e = EVR.load(['secretVarEnvVar', 'one', 'word', 'oneString', 'floatString']);
+                expect(e.one).to.equal(1);
+                expect(e.oneString).to.equal(1);
+                expect(e.floatString).to.equal(1.1);
+                // Note the override of word:
+                expect(e.word).to.equal('secret word');
+                // and the new env:
+                expect(e.secretVarEnvVar).to.be.eql('super secret');
 
-        lab.test('when secretVarsOverrideExisting = false, secretVars should not override existing', function(done){
-            EVR.useSecretVarsFile = true;
-            EVR.secretVarsOverrideExisting = false;
-            expect(EVR.shouldThrow).to.be.true;
-            expect(EVR.parseNumbers).to.be.true;
+                expect(EVR.consoleError).to.be.calledTwice;
+                expect(EVR.consoleError).to.be.calledWith('Setting process.env[word] from secret file: ./secret_vars/env_vars.js');
+                expect(EVR.consoleError).to.be.calledWith('Setting process.env[secretVarEnvVar] from secret file: ./secret_vars/env_vars.js');
 
-            var e = EVR.load(['secretVarEnvVar', 'one', 'word','oneString','floatString']);
-            expect(e.one).to.equal(1);
-            expect(e.oneString).to.equal(1);
-            expect(e.floatString).to.equal(1.1);
-            // Note the override of word:
-            expect(e.word).to.equal('word');
-            // and the new env:
-            expect(e.secretVarEnvVar).to.be.eql('super secret');
-            done();
+                done();
+            });
+
+            lab.test('adding an alternative secretVars directory should look in there before checking the environment', function (done) {
+                EVR.useSecretVarsFile = true;
+                EVR.secretVarsFileName = './test/alt.secret.vars/alt.env.vars.js';
+                expect(EVR.shouldThrow).to.be.true;
+                expect(EVR.parseNumbers).to.be.true;
+
+                var e = EVR.load(['secretVarEnvVar', 'one', 'word', 'oneString', 'floatString']);
+                expect(e.one).to.equal(1);
+                expect(e.oneString).to.equal(1);
+                expect(e.floatString).to.equal(1.1);
+                // Note the override of word:
+                expect(e.word).to.equal('alt secret word');
+                // and the new env:
+                expect(e.secretVarEnvVar).to.be.eql('super squirrel secret');
+                expect(EVR.consoleError).to.be.calledTwice;
+                expect(EVR.consoleError).to.be.calledWith('Setting process.env[word] from secret file: ./test/alt.secret.vars/alt.env.vars.js');
+                expect(EVR.consoleError).to.be.calledWith('Setting process.env[secretVarEnvVar] from secret file: ./test/alt.secret.vars/alt.env.vars.js');
+                done();
+            });
+
+            lab.test('when secretVarsOverrideExisting = false, secretVars should not override existing', function (done) {
+                EVR.useSecretVarsFile = true;
+                EVR.secretVarsOverrideExisting = false;
+                expect(EVR.shouldThrow).to.be.true;
+                expect(EVR.parseNumbers).to.be.true;
+
+                var e = EVR.load(['secretVarEnvVar', 'one', 'word', 'oneString', 'floatString']);
+                expect(e.one).to.equal(1);
+                expect(e.oneString).to.equal(1);
+                expect(e.floatString).to.equal(1.1);
+                // Note the override of word:
+                expect(e.word).to.equal('word');
+                // and the new env:
+                expect(e.secretVarEnvVar).to.be.eql('super secret');
+                expect(EVR.consoleError).to.be.calledOnce;
+                expect(EVR.consoleError).to.be.calledWith('Setting process.env[secretVarEnvVar] from secret file: ./secret_vars/env_vars.js');
+                done();
+            });
         });
 
     });
