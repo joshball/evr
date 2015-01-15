@@ -24,6 +24,7 @@ lab.experiment('evr spec', function () {
         expect(e.one).to.equal(1);
         expect(e.oneString).to.equal(1);
         expect(e.floatString).to.equal(1.1);
+        expect(e.badFloatString).to.equal('1.1.is.not.a.float');
     }
 
     function expectUnParsedEnvVars(e) {
@@ -31,6 +32,7 @@ lab.experiment('evr spec', function () {
         expect(e.one).to.equal('1');
         expect(e.oneString).to.equal('1');
         expect(e.floatString).to.equal('1.1');
+        expect(e.badFloatString).to.equal('1.1.is.not.a.float');
     }
 
     var sandbox;
@@ -51,6 +53,7 @@ lab.experiment('evr spec', function () {
         process.env.one = 1;
         process.env.oneString = '1';
         process.env.floatString = '1.1';
+        process.env.badFloatString = '1.1.is.not.a.float';
 
         process.env.undefinedNum = undefined;
         delete process.env.undefinedNum;
@@ -96,7 +99,7 @@ lab.experiment('evr spec', function () {
             expect(EVR.useSecretVarsFile).to.be.false;
             expect(EVR.secretVarsOverrideExisting).to.be.true;
 
-            var e = EVR.load(['one', 'word', 'oneString', 'floatString']);
+            var e = EVR.load(['one', 'word', 'oneString', 'floatString', 'badFloatString']);
             expectParsedEnvVars(e);
             done();
         });
@@ -112,7 +115,8 @@ lab.experiment('evr spec', function () {
                 one: undefined,
                 word: undefined,
                 oneString: undefined,
-                floatString: undefined
+                floatString: undefined,
+                badFloatString: undefined
             });
             expectParsedEnvVars(e);
             done();
@@ -132,6 +136,7 @@ lab.experiment('evr spec', function () {
             word: 'word',
             oneString: undefined,
             floatString: '1.1',
+            badFloatString: '1.1.is.not.a.float',
             undefinedNum: 3,
             undefinedVariableWithDefault: 'stringValue'
         });
@@ -152,7 +157,7 @@ lab.experiment('evr spec', function () {
         expect(EVR.secretVarsOverrideExisting).to.be.true;
 
         expect(function () {
-            EVR.load(['one', 'word', 'oneString', 'floatString', 'missingEnv']);
+            EVR.load(['one', 'word', 'oneString', 'floatString', 'badFloatString', 'missingEnv']);
         }).to.throw(Error, 'Required Environment Variable: "missingEnv" must be set');
         done();
     });
@@ -166,7 +171,7 @@ lab.experiment('evr spec', function () {
             expect(EVR.useSecretVarsFile).to.be.false;
             expect(EVR.secretVarsOverrideExisting).to.be.true;
 
-            var e = EVR.load(['one', 'word', 'oneString', 'floatString']);
+            var e = EVR.load(['one', 'word', 'oneString', 'floatString', 'badFloatString']);
             expectUnParsedEnvVars(e);
             done();
         });
@@ -178,7 +183,7 @@ lab.experiment('evr spec', function () {
             expect(EVR.useSecretVarsFile).to.be.false;
             expect(EVR.secretVarsOverrideExisting).to.be.true;
 
-            var e = EVR.load(['somethingsfish', 'one', 'word', 'oneString', 'floatString', 'missingEnv']);
+            var e = EVR.load(['somethingsfish', 'one', 'word', 'oneString', 'floatString', 'badFloatString', 'missingEnv']);
             expectParsedEnvVars(e);
 
             expect(e.missingEnv).to.be.undefined;
@@ -197,10 +202,11 @@ lab.experiment('evr spec', function () {
                 expect(EVR.parseNumbers).to.be.true;
 
 
-                var e = EVR.load(['secretVarEnvVar', 'one', 'word', 'oneString', 'floatString']);
+                var e = EVR.load(['secretVarEnvVar', 'one', 'word', 'oneString', 'floatString', 'badFloatString']);
                 expect(e.one).to.equal(1);
                 expect(e.oneString).to.equal(1);
                 expect(e.floatString).to.equal(1.1);
+                expect(e.badFloatString).to.equal('1.1.is.not.a.float');
                 // Note the override of word:
                 expect(e.word).to.equal('secret word');
                 // and the new env:
@@ -219,10 +225,11 @@ lab.experiment('evr spec', function () {
                 expect(EVR.shouldThrow).to.be.true;
                 expect(EVR.parseNumbers).to.be.true;
 
-                var e = EVR.load(['secretVarEnvVar', 'one', 'word', 'oneString', 'floatString']);
+                var e = EVR.load(['secretVarEnvVar', 'one', 'word', 'oneString', 'floatString', 'badFloatString']);
                 expect(e.one).to.equal(1);
                 expect(e.oneString).to.equal(1);
                 expect(e.floatString).to.equal(1.1);
+                expect(e.badFloatString).to.equal('1.1.is.not.a.float');
                 // Note the override of word:
                 expect(e.word).to.equal('alt secret word');
                 // and the new env:
@@ -239,10 +246,11 @@ lab.experiment('evr spec', function () {
                 expect(EVR.shouldThrow).to.be.true;
                 expect(EVR.parseNumbers).to.be.true;
 
-                var e = EVR.load(['secretVarEnvVar', 'one', 'word', 'oneString', 'floatString']);
+                var e = EVR.load(['secretVarEnvVar', 'one', 'word', 'oneString', 'floatString', 'badFloatString']);
                 expect(e.one).to.equal(1);
                 expect(e.oneString).to.equal(1);
                 expect(e.floatString).to.equal(1.1);
+                expect(e.badFloatString).to.equal('1.1.is.not.a.float');
                 // Note the override of word:
                 expect(e.word).to.equal('word');
                 // and the new env:

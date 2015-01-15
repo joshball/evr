@@ -1,6 +1,6 @@
 {
   "name": "evr",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Environment variable reader in node",
   "main": "lib/evr.js",
   "scripts": {
